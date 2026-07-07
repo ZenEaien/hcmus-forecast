@@ -241,7 +241,6 @@ const els = {
   spotlightMeta: document.querySelector("#spotlightMeta"),
   spotlightScore: document.querySelector("#spotlightScore"),
   spotlightRange: document.querySelector("#spotlightRange"),
-  percentileReadout: document.querySelector("#percentileReadout"),
   chancePanel: document.querySelector("#chancePanel"),
   chanceTitle: document.querySelector("#chanceTitle"),
   chanceBadge: document.querySelector("#chanceBadge"),
@@ -263,7 +262,6 @@ const els = {
   volatilityRange100: document.querySelector("#volatilityRange100"),
   resultBody: document.querySelector("#resultBody"),
   editorGrid: document.querySelector("#editorGrid"),
-  chart: document.querySelector("#distributionChart"),
   exportCsv: document.querySelector("#exportCsv"),
   resetEdits: document.querySelector("#resetEdits"),
 };
@@ -537,7 +535,6 @@ function render() {
   renderSpotlight(selectedRow);
   renderChance(selectedRow);
   if (els.editorGrid) renderEditor();
-  drawChart(selectedRow);
 }
 
 function renderTable(rows) {
@@ -582,7 +579,6 @@ function renderSpotlight(row) {
     : mode() === "vact"
       ? `${formatValue(row.predicted)} V-ACT, tương đương ${formatScore(vactToScale30(row.predicted))}/30`
       : `${formatValue(row.predicted - margin)} - ${formatValue(row.predicted + margin)}`;
-  els.percentileReadout.textContent = row.percentile == null ? "-" : mode() === "vact" ? `Bách phân vị top ${row.percentile.toFixed(2)}%` : `Bách phân vị ${(row.percentile * 100).toFixed(2)}%`;
 }
 
 function renderChance(row) {
@@ -825,5 +821,4 @@ function exportCsv() {
   URL.revokeObjectURL(url);
 }
 
-window.addEventListener("resize", () => drawChart(allRows().find((row) => row.program.code === state.selectedCode)));
 setup();
