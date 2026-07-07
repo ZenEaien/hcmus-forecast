@@ -85,14 +85,14 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">Tính cơ hội cá nhân</p>
-            <h2>V-ACT quy đổi thang 30 + học bạ 20%</h2>
+            <h2 id="chanceTitle">Điểm thi quy đổi + học bạ 20%</h2>
           </div>
           <div id="chanceBadge" class="chance-badge">-</div>
         </div>
         <div class="chance-grid">
           <label>
-            Điểm V-ACT của bạn
-            <input id="userVactScore" type="number" min="0" max="1200" step="1" />
+            <span id="examScoreLabel">Điểm thi của bạn</span>
+            <input id="userExamScore" type="number" min="0" max="1200" step="0.01" />
           </label>
           <label>
             Điểm học bạ thang 30
@@ -104,14 +104,15 @@
           </label>
         </div>
         <div class="method-note compact-note">
-          Công thức đang dùng: V-ACT quy đổi theo bảng ĐGNL → THPT mới của HCMUS;
-          điểm xét tuyển = 80% V-ACT quy đổi + 20% học bạ. Tỉ lệ đỗ là ước lượng mềm theo khoảng cách
+          <span id="chanceFormula">Công thức đang dùng: điểm thi quy đổi thang 30;
+          điểm xét tuyển = 80% điểm thi quy đổi + 20% học bạ.</span>
+          Tỉ lệ đỗ là ước lượng mềm theo khoảng cách
           giữa điểm xét tuyển của bạn và điểm chuẩn dự báo thang 30 của ngành đang chọn.
         </div>
         <div class="chance-results">
           <div>
-            <span id="convertedVact">-</span>
-            <small>V-ACT quy đổi thang 30</small>
+            <span id="convertedExam">-</span>
+            <small id="convertedExamLabel">Điểm thi quy đổi thang 30</small>
           </div>
           <div>
             <span id="weightedScore">-</span>

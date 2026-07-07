@@ -243,11 +243,15 @@ const els = {
   spotlightRange: document.querySelector("#spotlightRange"),
   percentileReadout: document.querySelector("#percentileReadout"),
   chancePanel: document.querySelector("#chancePanel"),
+  chanceTitle: document.querySelector("#chanceTitle"),
   chanceBadge: document.querySelector("#chanceBadge"),
-  userVactScore: document.querySelector("#userVactScore"),
+  examScoreLabel: document.querySelector("#examScoreLabel"),
+  userExamScore: document.querySelector("#userExamScore"),
   userTranscriptScore: document.querySelector("#userTranscriptScore"),
   admissionWeight: document.querySelector("#admissionWeight"),
-  convertedVact: document.querySelector("#convertedVact"),
+  chanceFormula: document.querySelector("#chanceFormula"),
+  convertedExam: document.querySelector("#convertedExam"),
+  convertedExamLabel: document.querySelector("#convertedExamLabel"),
   weightedScore: document.querySelector("#weightedScore"),
   targetScore30: document.querySelector("#targetScore30"),
   scoreGap: document.querySelector("#scoreGap"),
@@ -334,6 +338,21 @@ function syncModeControls() {
   els.margin.max = isVact ? 100 : 2;
   els.roundingLabel.firstChild.textContent = isVact ? "Làm tròn V-ACT" : "Làm tròn";
   els.marginLabel.firstChild.textContent = isVact ? "Biên độ thận trọng V-ACT" : "Biên độ thận trọng";
+  syncChanceControls();
+}
+
+function syncChanceControls() {
+  const isVact = mode() === "vact";
+  els.chanceTitle.textContent = isVact
+    ? "V-ACT quy đổi thang 30 + học bạ 20%"
+    : "THPT 80% + học bạ 20%";
+  els.examScoreLabel.textContent = isVact ? "Điểm V-ACT của bạn" : "Điểm THPT của bạn";
+  els.userExamScore.max = isVact ? "1200" : "30";
+  els.userExamScore.step = isVact ? "1" : "0.01";
+  els.chanceFormula.textContent = isVact
+    ? "Công thức đang dùng: V-ACT quy đổi theo bảng ĐGNL → THPT mới của HCMUS; điểm xét tuyển = 80% V-ACT quy đổi + 20% học bạ."
+    : "Công thức đang dùng: điểm xét tuyển = 80% điểm THPT + 20% học bạ.";
+  els.convertedExamLabel.textContent = isVact ? "V-ACT quy đổi thang 30" : "Điểm THPT thang 30";
 }
 
 function hasHistogram(year, combo) {
@@ -436,8 +455,13 @@ function vactToScale30(score) {
   return null;
 }
 
-function weightedAdmissionScore(vactScore, transcriptScore) {
-  const converted = vactToScale30(vactScore);
+function examScoreToScale30(score) {
+  if (score == null || Number.isNaN(score)) return null;
+  return mode() === "vact" ? vactToScale30(score) : score;
+}
+
+function weightedScoreFromExam(score, transcriptScore) {
+  const converted = examScoreToScale30(score);
   if (converted == null || transcriptScore == null || Number.isNaN(transcriptScore)) return null;
   return converted * 0.8 + transcriptScore * 0.2;
 }
@@ -553,23 +577,27 @@ function renderSpotlight(row) {
 }
 
 function renderChance(row) {
-  const isVact = mode() === "vact";
-  els.chancePanel.classList.toggle("is-visible", isVact);
-  if (!isVact || !row) return;
+  els.chancePanel.classList.add("is-visible");
+  syncChanceControls();
+  if (!row) return;
 
-  const userVact = numberOrNull(els.userVactScore);
+  const userExam = numberOrNull(els.userExamScore);
   const transcript = numberOrNull(els.userTranscriptScore);
-  const converted = vactToScale30(userVact);
-  const weighted = weightedAdmissionScore(userVact, transcript);
-  const target30 = vactToScale30(row.predicted);
+  const converted = examScoreToScale30(userExam);
+  const weighted = weightedScoreFromExam(userExam, transcript);
+  const target30 = mode() === "vact" ? vactToScale30(row.predicted) : row.predicted;
   const gap = weighted == null || target30 == null ? null : weighted - target30;
-  const upper = vactToScale30((row.predicted ?? 0) + (Number(els.margin.value) || 15));
-  const lower = vactToScale30((row.predicted ?? 0) - (Number(els.margin.value) || 15));
+  const upper = mode() === "vact"
+    ? vactToScale30((row.predicted ?? 0) + (Number(els.margin.value) || 15))
+    : (row.predicted ?? 0) + (Number(els.margin.value) || 0.25);
+  const lower = mode() === "vact"
+    ? vactToScale30((row.predicted ?? 0) - (Number(els.margin.value) || 15))
+    : (row.predicted ?? 0) - (Number(els.margin.value) || 0.25);
   const reliability = reliabilityFor(row.program);
   const uncertainty30 = upper != null && lower != null ? Math.abs(upper - lower) : 0.5;
   const chance = chanceFromGap(gap, uncertainty30, reliability);
 
-  els.convertedVact.textContent = formatScore(converted);
+  els.convertedExam.textContent = formatScore(converted);
   els.weightedScore.textContent = formatScore(weighted);
   els.targetScore30.textContent = formatScore(target30);
   els.scoreGap.textContent = gap == null ? "-" : `${gap >= 0 ? "+" : ""}${formatScore(gap)}`;
