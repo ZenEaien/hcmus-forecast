@@ -9,4 +9,3 @@ The deployed site only needs:
 - `app.js`
 - `data/distributions.js`
 - `data/vact.js`
-
