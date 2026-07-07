@@ -185,6 +185,42 @@ const programs = [
   ["7850101", "Quản lý tài nguyên và môi trường", "A00", { 2023: 18.5, 2024: 22, 2025: { A00: 22, A01: 20.75, B00: 20.75, C01: 22.25, D07: 20.25 } }],
 ].map(([code, name, defaultCombo, cutoffs]) => ({ code, name, defaultCombo, cutoffs }));
 
+const forecastReliability = {
+  "7460108_NN": {
+    level: "Thấp",
+    uncertaintyMultiplier: 2.4,
+    chancePenalty: 12,
+    reason: "Khoa học dữ liệu/Thống kê: chỉ tiêu có thể giảm do tách hoặc mở thêm chương trình CLC.",
+  },
+  "7460101_NN": {
+    level: "Thấp",
+    uncertaintyMultiplier: 2.2,
+    chancePenalty: 10,
+    reason: "Nhóm Toán học: chỉ tiêu có thể bị phân bổ lại cho chương trình CLC.",
+  },
+  "7440102_NN": {
+    level: "Thấp",
+    uncertaintyMultiplier: 2.2,
+    chancePenalty: 10,
+    reason: "Nhóm Vật lý: chỉ tiêu có thể bị phân bổ lại cho chương trình CLC.",
+  },
+  "7440102_DKD": {
+    level: "Thấp",
+    uncertaintyMultiplier: 2.2,
+    chancePenalty: 10,
+    reason: "Vật lý học: chỉ tiêu có thể biến động do mở thêm chương trình CLC.",
+  },
+};
+
+function reliabilityFor(program) {
+  return forecastReliability[program.code] ?? {
+    level: "Chuẩn",
+    uncertaintyMultiplier: 1,
+    chancePenalty: 0,
+    reason: "Chưa áp hệ số giảm độ tin cậy riêng cho ngành này.",
+  };
+}
+
 const state = {
   selectedCode: programs[0].code,
   edits: JSON.parse(localStorage.getItem("hcmusCutoffEdits") || "{}"),
@@ -215,6 +251,8 @@ const els = {
   weightedScore: document.querySelector("#weightedScore"),
   targetScore30: document.querySelector("#targetScore30"),
   scoreGap: document.querySelector("#scoreGap"),
+  reliabilityLevel: document.querySelector("#reliabilityLevel"),
+  reliabilityReason: document.querySelector("#reliabilityReason"),
   resultBody: document.querySelector("#resultBody"),
   editorGrid: document.querySelector("#editorGrid"),
   chart: document.querySelector("#distributionChart"),
@@ -408,10 +446,11 @@ function numberOrNull(input) {
   return input.value === "" ? null : Number(input.value);
 }
 
-function chanceFromGap(gap, uncertainty) {
+function chanceFromGap(gap, uncertainty, reliability) {
   if (gap == null || Number.isNaN(gap)) return null;
-  const scale = Math.max(0.18, uncertainty / 30);
-  const probability = 1 / (1 + Math.exp(-gap / scale));
+  const scale = Math.max(0.18, (uncertainty * reliability.uncertaintyMultiplier) / 30);
+  let probability = 1 / (1 + Math.exp(-gap / scale));
+  probability -= reliability.chancePenalty / 100;
   return Math.max(1, Math.min(99, Math.round(probability * 100)));
 }
 
@@ -526,14 +565,17 @@ function renderChance(row) {
   const gap = weighted == null || target30 == null ? null : weighted - target30;
   const upper = vactToScale30((row.predicted ?? 0) + (Number(els.margin.value) || 15));
   const lower = vactToScale30((row.predicted ?? 0) - (Number(els.margin.value) || 15));
+  const reliability = reliabilityFor(row.program);
   const uncertainty30 = upper != null && lower != null ? Math.abs(upper - lower) : 0.5;
-  const chance = chanceFromGap(gap, uncertainty30);
+  const chance = chanceFromGap(gap, uncertainty30, reliability);
 
   els.convertedVact.textContent = formatScore(converted);
   els.weightedScore.textContent = formatScore(weighted);
   els.targetScore30.textContent = formatScore(target30);
   els.scoreGap.textContent = gap == null ? "-" : `${gap >= 0 ? "+" : ""}${formatScore(gap)}`;
   els.chanceBadge.textContent = chance == null ? "-" : `${chance}%`;
+  els.reliabilityLevel.textContent = reliability.level;
+  els.reliabilityReason.textContent = reliability.reason;
 }
 
 function renderEditor() {
