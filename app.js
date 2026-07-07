@@ -257,6 +257,10 @@ const els = {
   scoreGap: document.querySelector("#scoreGap"),
   reliabilityLevel: document.querySelector("#reliabilityLevel"),
   reliabilityReason: document.querySelector("#reliabilityReason"),
+  weightedScore100: document.querySelector("#weightedScore100"),
+  targetScore100: document.querySelector("#targetScore100"),
+  scoreGap100: document.querySelector("#scoreGap100"),
+  volatilityRange100: document.querySelector("#volatilityRange100"),
   resultBody: document.querySelector("#resultBody"),
   editorGrid: document.querySelector("#editorGrid"),
   chart: document.querySelector("#distributionChart"),
@@ -433,6 +437,11 @@ function formatScore(value) {
   return value == null || Number.isNaN(value) ? "-" : value.toFixed(2);
 }
 
+function toScale100(score30) {
+  if (score30 == null || Number.isNaN(score30)) return null;
+  return (score30 * 100) / 30;
+}
+
 function formatValue(value) {
   if (value == null || Number.isNaN(value)) return "-";
   return mode() === "vact" ? String(Math.round(value)) : formatScore(value);
@@ -596,6 +605,11 @@ function renderChance(row) {
   const reliability = reliabilityFor(row.program);
   const uncertainty30 = upper != null && lower != null ? Math.abs(upper - lower) : 0.5;
   const chance = chanceFromGap(gap, uncertainty30, reliability);
+  const weighted100 = toScale100(weighted);
+  const target100 = toScale100(target30);
+  const gap100 = toScale100(gap);
+  const lower100 = toScale100(lower);
+  const upper100 = toScale100(upper);
 
   els.convertedExam.textContent = formatScore(converted);
   els.weightedScore.textContent = formatScore(weighted);
@@ -604,6 +618,12 @@ function renderChance(row) {
   els.chanceBadge.textContent = chance == null ? "-" : `${chance}%`;
   els.reliabilityLevel.textContent = reliability.level;
   els.reliabilityReason.textContent = reliability.reason;
+  els.weightedScore100.textContent = formatScore(weighted100);
+  els.targetScore100.textContent = formatScore(target100);
+  els.scoreGap100.textContent = gap100 == null ? "-" : `${gap100 >= 0 ? "+" : ""}${formatScore(gap100)}`;
+  els.volatilityRange100.textContent = lower100 == null || upper100 == null
+    ? "-"
+    : `${formatScore(lower100)} - ${formatScore(upper100)}`;
 }
 
 function renderEditor() {

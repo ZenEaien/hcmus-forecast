@@ -258,6 +258,38 @@ tr:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.scale100-panel {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.scale100-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.scale100-grid div {
+  min-height: 88px;
+  padding: 14px;
+  border: 1px solid #cbd8e8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.scale100-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--pink);
+  font-size: 28px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
 canvas {
   display: block;
   width: 100%;
@@ -361,7 +393,8 @@ tr.is-selected {
   .control-grid,
   .editor-grid,
   .chance-grid,
-  .chance-results {
+  .chance-results,
+  .scale100-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -375,7 +408,8 @@ tr.is-selected {
   .control-grid,
   .editor-grid,
   .chance-grid,
-  .chance-results {
+  .chance-results,
+  .scale100-grid {
     grid-template-columns: 1fr;
   }
 

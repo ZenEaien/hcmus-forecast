@@ -107,7 +107,8 @@
           <span id="chanceFormula">Công thức đang dùng: điểm thi quy đổi thang 30;
           điểm xét tuyển = 80% điểm thi quy đổi + 20% học bạ.</span>
           Tỉ lệ đỗ là ước lượng mềm theo khoảng cách
-          giữa điểm xét tuyển của bạn và điểm chuẩn dự báo thang 30 của ngành đang chọn.
+          giữa điểm xét tuyển của bạn và điểm chuẩn dự báo. Sau khi tính trên thang 30,
+          web quy đổi thêm sang thang 100 bằng công thức * 100 / 30.
         </div>
         <div class="chance-results">
           <div>
@@ -129,6 +130,32 @@
           <div>
             <span id="reliabilityLevel">-</span>
             <small id="reliabilityReason">Độ tin cậy dự báo</small>
+          </div>
+        </div>
+        <div class="scale100-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Quy đổi thang 100</p>
+              <h2>Khoảng biến động sau quy đổi</h2>
+            </div>
+          </div>
+          <div class="scale100-grid">
+            <div>
+              <span id="weightedScore100">-</span>
+              <small>Điểm xét tuyển của bạn /100</small>
+            </div>
+            <div>
+              <span id="targetScore100">-</span>
+              <small>Điểm chuẩn dự báo /100</small>
+            </div>
+            <div>
+              <span id="scoreGap100">-</span>
+              <small>Chênh lệch /100</small>
+            </div>
+            <div>
+              <span id="volatilityRange100">-</span>
+              <small>Khoảng biến động dự báo /100</small>
+            </div>
           </div>
         </div>
       </section>
