@@ -1,0 +1,10 @@
+# Raw local data and source images are intentionally kept out of the public site.
+dữ liệu thô/
+Bảng điểm HCMUS/
+Vact/
+tools/
+
+# Local and generated noise.
+*.log
+.DS_Store
+Thumbs.db

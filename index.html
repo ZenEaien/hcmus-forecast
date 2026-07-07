@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dự báo điểm chuẩn HCMUS - Equipercentile Equating</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">HCMUS Admission Lab</p>
+        <h1>Dự báo điểm chuẩn HCMUS</h1>
+        <p class="lede">
+          Quy đổi điểm chuẩn các năm trước sang năm đích bằng phương pháp
+          equipercentile equating trên phân phối điểm thi THPT.
+        </p>
+      </div>
+      <div class="header-stat">
+        <span id="candidateCount">-</span>
+        <small>thí sinh trong phân phối đang chọn</small>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel controls">
+        <div class="control-grid">
+          <label>
+            Phương thức
+            <select id="modeSelect">
+              <option value="thpt">THPT</option>
+              <option value="vact">V-ACT / ĐGNL</option>
+            </select>
+          </label>
+          <label>
+            Tổ hợp
+            <select id="comboSelect"></select>
+          </label>
+          <label>
+            Năm gốc
+            <select id="sourceYear"></select>
+          </label>
+          <label>
+            Năm dự báo
+            <select id="targetYear"></select>
+          </label>
+          <label id="roundingLabel">
+            Làm tròn
+            <select id="rounding">
+              <option value="0.01">0.01</option>
+              <option value="0.05" selected>0.05</option>
+              <option value="0.1">0.10</option>
+            </select>
+          </label>
+          <label id="marginLabel">
+            Biên độ thận trọng
+            <input id="margin" type="number" min="0" max="2" value="0.25" step="0.05" />
+          </label>
+          <label>
+            Tìm ngành
+            <input id="searchInput" type="search" placeholder="Mã ngành hoặc tên ngành" />
+          </label>
+        </div>
+        <div class="method-note">
+          Với THPT, trang lấy điểm chuẩn năm gốc, tìm bách phân vị trong phân
+          phối tổ hợp cùng năm, rồi tìm điểm năm dự báo có cùng bách phân vị.
+          Với V-ACT, trang dùng bảng bách phân vị ĐGNL 2025 và khung bách phân
+          vị ĐGNL 2026. Khoảng điểm đề xuất = điểm quy đổi ± biên độ.
+        </div>
+      </section>
+
+      <section class="panel spotlight">
+        <div>
+          <p class="eyebrow">Kết quả nổi bật</p>
+          <h2 id="spotlightName">-</h2>
+          <p id="spotlightMeta">Chọn một ngành trong bảng để xem chi tiết.</p>
+        </div>
+        <div class="score-card">
+          <span id="spotlightScore">-</span>
+          <small id="spotlightRange">Khoảng dự báo</small>
+        </div>
+      </section>
+
+      <section class="panel chance-panel" id="chancePanel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Tính cơ hội cá nhân</p>
+            <h2>V-ACT quy đổi thang 30 + học bạ 20%</h2>
+          </div>
+          <div id="chanceBadge" class="chance-badge">-</div>
+        </div>
+        <div class="chance-grid">
+          <label>
+            Điểm V-ACT của bạn
+            <input id="userVactScore" type="number" min="0" max="1200" step="1" />
+          </label>
+          <label>
+            Điểm học bạ thang 30
+            <input id="userTranscriptScore" type="number" min="0" max="30" step="0.01" />
+          </label>
+          <label>
+            Hệ xét tuyển
+            <input id="admissionWeight" type="text" value="8:2" readonly />
+          </label>
+        </div>
+        <div class="method-note compact-note">
+          Công thức đang dùng: V-ACT quy đổi theo bảng ĐGNL → THPT mới của HCMUS;
+          điểm xét tuyển = 80% V-ACT quy đổi + 20% học bạ. Tỉ lệ đỗ là ước lượng mềm theo khoảng cách
+          giữa điểm xét tuyển của bạn và điểm chuẩn dự báo thang 30 của ngành đang chọn.
+        </div>
+        <div class="chance-results">
+          <div>
+            <span id="convertedVact">-</span>
+            <small>V-ACT quy đổi thang 30</small>
+          </div>
+          <div>
+            <span id="weightedScore">-</span>
+            <small>Điểm xét tuyển 80% + 20%</small>
+          </div>
+          <div>
+            <span id="targetScore30">-</span>
+            <small>Điểm chuẩn dự báo thang 30</small>
+          </div>
+          <div>
+            <span id="scoreGap">-</span>
+            <small>Chênh lệch so với ngành đang chọn</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Phân phối điểm</p>
+            <h2>So sánh năm gốc và năm dự báo</h2>
+          </div>
+          <div id="percentileReadout" class="readout">-</div>
+        </div>
+        <canvas id="distributionChart" width="1200" height="360"></canvas>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Danh sách ngành</p>
+            <h2>Bảng dự báo theo từng ngành</h2>
+          </div>
+          <button id="exportCsv" type="button">Xuất CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mã ngành</th>
+                <th>Ngành / nhóm ngành</th>
+                <th>Điểm gốc</th>
+                <th>Bách phân vị</th>
+                <th>Dự báo</th>
+                <th>Khoảng</th>
+              </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel editor-panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Hiệu chỉnh giả định</p>
+            <h2>Nhập điểm chuẩn gốc thủ công</h2>
+          </div>
+          <button id="resetEdits" type="button">Đặt lại</button>
+        </div>
+        <div class="editor-grid" id="editorGrid"></div>
+      </section>
+
+    </main>
+
+    <script src="data/distributions.js"></script>
+    <script src="data/vact.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
